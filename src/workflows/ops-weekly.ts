@@ -1,0 +1,40 @@
+import type { WorkflowDefinition } from "./types.js";
+
+export const opsWeeklyWorkflow: WorkflowDefinition = {
+  id: "ops-weekly",
+  title: "Operations Weekly",
+  description:
+    "Collect progress, summarize metrics, identify blockers, and produce a weekly operating report.",
+  inputHint: "A weekly notes file with progress, metrics, blockers, and decisions.",
+  specialists: ["opsAnalyst", "riskReviewer", "synthesizer"],
+  tasks: [
+    {
+      id: "progress-and-metrics",
+      title: "Progress And Metrics",
+      agent: "opsAnalyst",
+      objective:
+        "Summarize progress, metric movement, blockers, decisions, and next-week priorities."
+    },
+    {
+      id: "ops-risk-review",
+      title: "Operations Risk Review",
+      agent: "riskReviewer",
+      objective:
+        "Identify blocked owners, ambiguous metrics, delivery risks, and actions that require approval."
+    }
+  ],
+  managerPrompt:
+    "Create an executive-ready weekly report with progress, metrics, blockers, risks, action items, and approvals required before external or irreversible work.",
+  requiredSections: [
+    "Executive Summary",
+    "Facts And Sources",
+    "Risks",
+    "Action Items",
+    "Human Approval Required",
+    "Open Questions"
+  ],
+  approvalPolicy: [
+    "Human review is required before sending the weekly report to stakeholders.",
+    "Metric changes must be checked against the source system before they are treated as final."
+  ]
+};
