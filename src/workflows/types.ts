@@ -1,10 +1,6 @@
 import type { SpecialistAgentKey } from "../agents/definitions.js";
 
-export type WorkflowId =
-  | "research-report"
-  | "ops-weekly"
-  | "meeting-actions"
-  | "content-ops";
+export type WorkflowId = string;
 
 export interface WorkflowTask {
   id: string;

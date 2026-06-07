@@ -1,14 +1,17 @@
 import { Agent } from "@openai/agents";
 
-export type SpecialistAgentKey =
-  | "researcher"
-  | "factChecker"
-  | "contrarianReviewer"
-  | "opsAnalyst"
-  | "meetingAnalyst"
-  | "contentStrategist"
-  | "riskReviewer"
-  | "synthesizer";
+export const specialistAgentKeys = [
+  "researcher",
+  "factChecker",
+  "contrarianReviewer",
+  "opsAnalyst",
+  "meetingAnalyst",
+  "contentStrategist",
+  "riskReviewer",
+  "synthesizer"
+] as const;
+
+export type SpecialistAgentKey = (typeof specialistAgentKeys)[number];
 
 export interface SpecialistMetadata {
   key: SpecialistAgentKey;

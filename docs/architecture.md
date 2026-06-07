@@ -6,14 +6,15 @@ The first version is a practical CLI system, not a web product. It turns local w
 
 ## Orchestration
 
-Default orchestration uses a manager agent plus specialist agents exposed as tools. Workflows can also define code-level phases. Research-heavy phases run in parallel with `Promise.all`; final output always passes through review and synthesis before it is saved.
+Default orchestration uses JSON workflow config, a manager agent, and specialist agents exposed as tools. Research-heavy phases run in parallel with `Promise.all`; final output always passes through review and synthesis before it is saved.
 
 Handoffs are reserved for later routing cases where the request type is ambiguous, such as deciding whether an input is a research request, weekly report request, meeting transcript, or content operations brief.
 
 ## Main Directories
 
 - `src/agents`: agent roles, manager construction, runner adapters.
-- `src/workflows`: workflow definitions and registry.
+- `config/workflows`: workflow definitions.
+- `src/workflows`: workflow config schema and registry.
 - `src/tools`: local deterministic utilities for files, risk detection, and audit helpers.
 - `src/schemas`: Zod schemas for report and trace structures.
 - `src/runs`: execution and artifact persistence.
@@ -40,4 +41,4 @@ Full provider-side tracing can be layered in later through the Agents SDK tracin
 
 ## Evaluation Model
 
-Run evaluations are local JSON records tied to trace files. They capture estimated manual time, actual post-workflow time, adoption, errors, rework, and free-form notes. This keeps the MVP honest: a workflow is promoted only when repeated evaluations show real saved time and manageable error/rework rates.
+Run evaluations are local JSON records tied to trace files. They capture estimated manual time, actual post-workflow time, adoption, errors, rework, and free-form notes. `npm run review -- --out runs` summarizes the evaluation index so a workflow is promoted only when repeated evaluations show real saved time and manageable error/rework rates.

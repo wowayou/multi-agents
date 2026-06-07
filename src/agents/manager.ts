@@ -26,7 +26,7 @@ export function createWorkflowManager(
       "Never perform external side effects. Do not send, publish, delete, merge, deploy, commit, or open pull requests.",
       `Workflow: ${workflow.title}`,
       workflow.managerPrompt,
-      "The final Markdown report must include: Executive Summary, Facts And Sources, Risks, Action Items, Human Approval Required, Open Questions.",
+      `The final Markdown report must include: ${workflow.requiredSections.join(", ")}.`,
       "For every important factual claim, include a source label and confidence. If the source is only the provided input, say so."
     ].join("\n\n"),
     tools

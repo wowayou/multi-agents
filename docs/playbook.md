@@ -2,6 +2,8 @@
 
 Use this process to turn a repeated work activity into a workflow.
 
+Workflow definitions live in `config/workflows/*.json`. Run `npm run config:check` after adding or changing one.
+
 ## 1. Define The Input
 
 Start with a single local file format. Good inputs include:
@@ -62,7 +64,13 @@ After a real workflow run, record whether the output was adopted, how much time 
 npm run evaluate -- runs/traces/<run-id>.json --before-min 90 --after-min 35 --adopted partial --error "missed owner" --rework "clarify metric source"
 ```
 
-Review `runs/evaluations/index.jsonl` weekly. If evaluations show recurring errors, fix prompts/templates before adding new workflows or integrations.
+Review evaluations weekly:
+
+```bash
+npm run review -- --out runs
+```
+
+If evaluations show recurring errors, fix prompts/templates before adding new workflows or integrations.
 
 ## 7. Choose The Next Workflow
 

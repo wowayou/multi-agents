@@ -13,6 +13,8 @@
     "list": "tsx src/cli.ts list",
     "templates": "tsx src/cli.ts templates",
     "evaluate": "tsx src/cli.ts evaluate",
+    "review": "tsx src/cli.ts review",
+    "config:check": "tsx src/cli.ts config-check",
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"

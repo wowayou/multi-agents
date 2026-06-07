@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { LocalPreviewRunner } from "../src/agents/runner.js";
 import { executeWorkflow } from "../src/runs/execute.js";
-import { researchReportWorkflow } from "../src/workflows/research-report.js";
+import { resolveWorkflow } from "../src/workflows/registry.js";
 
 describe("executeWorkflow", () => {
   it("runs research-report in local preview mode with required report sections", async () => {
     const result = await executeWorkflow(
-      researchReportWorkflow,
+      resolveWorkflow("research-report"),
       {
         path: "mock-input.md",
         content:

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { reviewMarkdownReport } from "../src/tools/risk.js";
-import { researchReportWorkflow } from "../src/workflows/research-report.js";
+import { resolveWorkflow } from "../src/workflows/registry.js";
+
+const researchReportWorkflow = resolveWorkflow("research-report");
 
 describe("reviewMarkdownReport", () => {
   it("flags missing sources, missing risks, and unclear actions", () => {

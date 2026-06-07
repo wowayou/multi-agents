@@ -5,8 +5,9 @@ This repository is a local CLI project for multi-agent work operations. Treat ro
 ## How To Work Here
 
 - Read `README.md`, `docs/architecture.md`, and `docs/playbook.md` before changing workflow behavior.
-- Use existing patterns in `src/workflows`, `src/runs`, `src/schemas`, and `src/tools`.
+- Use existing patterns in `config/workflows`, `src/workflows`, `src/runs`, `src/schemas`, and `src/tools`.
 - Validate changes with `npm run typecheck`, `npm test`, and `npm run build`.
+- Validate workflow config with `npm run config:check`.
 - Use `npm run workflow:mock -- <workflow-id> <input-file>` to verify CLI behavior without an API key.
 
 ## Guardrails
@@ -21,3 +22,5 @@ This repository is a local CLI project for multi-agent work operations. Treat ro
 Stabilize `ops-weekly` and `meeting-actions` with real inputs for two weeks. Use `npm run evaluate` after each run to track time saved, adoption, errors, and rework.
 
 Use `docs/roadmap.md` before adding new workflows. New ideas should pass the frequency, file-input, review-burden, and safety checks first.
+
+Workflow definitions are JSON files in `config/workflows/*.json`. Add the config first, run `npm run config:check`, then update tests and docs.

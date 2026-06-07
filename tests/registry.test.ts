@@ -11,10 +11,10 @@ describe("workflow registry", () => {
 
   it("lists the initial workflow set", () => {
     expect(listWorkflows().map((workflow) => workflow.id)).toEqual([
-      "research-report",
-      "ops-weekly",
+      "content-ops",
       "meeting-actions",
-      "content-ops"
+      "ops-weekly",
+      "research-report"
     ]);
   });
 

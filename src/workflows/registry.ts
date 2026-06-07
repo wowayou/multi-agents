@@ -1,25 +1,95 @@
-import { contentOpsWorkflow } from "./content-ops.js";
-import { meetingActionsWorkflow } from "./meeting-actions.js";
-import { opsWeeklyWorkflow } from "./ops-weekly.js";
-import { researchReportWorkflow } from "./research-report.js";
-import type { WorkflowDefinition, WorkflowId } from "./types.js";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { ZodError } from "zod";
+import { WorkflowConfigSchema } from "./config-schema.js";
+import type { WorkflowDefinition } from "./types.js";
 
-export const workflows: Record<WorkflowId, WorkflowDefinition> = {
-  "research-report": researchReportWorkflow,
-  "ops-weekly": opsWeeklyWorkflow,
-  "meeting-actions": meetingActionsWorkflow,
-  "content-ops": contentOpsWorkflow
-};
+const DEFAULT_WORKFLOW_CONFIG_DIR = path.resolve(
+  process.cwd(),
+  "config",
+  "workflows"
+);
 
-export function listWorkflows(): WorkflowDefinition[] {
-  return Object.values(workflows);
+export function getWorkflowConfigDir(): string {
+  return process.env.AGENT_WORKFLOWS_CONFIG_DIR ?? DEFAULT_WORKFLOW_CONFIG_DIR;
 }
 
-export function resolveWorkflow(id: string): WorkflowDefinition {
-  if (id in workflows) {
-    return workflows[id as WorkflowId];
+export function loadWorkflowDefinitions(
+  configDir = getWorkflowConfigDir()
+): WorkflowDefinition[] {
+  if (!existsSync(configDir)) {
+    throw new Error(`Workflow config directory not found: ${configDir}`);
   }
 
-  const known = Object.keys(workflows).join(", ");
+  const files = readdirSync(configDir)
+    .filter((file) => file.endsWith(".json"))
+    .sort();
+
+  if (files.length === 0) {
+    throw new Error(`No workflow config JSON files found in: ${configDir}`);
+  }
+
+  const workflows = files.map((file) =>
+    readWorkflowConfigFile(path.join(configDir, file))
+  );
+  const ids = new Set<string>();
+
+  for (const workflow of workflows) {
+    if (ids.has(workflow.id)) {
+      throw new Error(`Duplicate workflow id "${workflow.id}" in ${configDir}.`);
+    }
+    ids.add(workflow.id);
+  }
+
+  return workflows.sort((left, right) => left.id.localeCompare(right.id));
+}
+
+export function listWorkflows(configDir?: string): WorkflowDefinition[] {
+  return loadWorkflowDefinitions(configDir);
+}
+
+export function resolveWorkflow(
+  id: string,
+  configDir?: string
+): WorkflowDefinition {
+  const workflows = loadWorkflowDefinitions(configDir);
+  const workflow = workflows.find((candidate) => candidate.id === id);
+  if (workflow) {
+    return workflow;
+  }
+
+  const known = workflows.map((candidate) => candidate.id).join(", ");
   throw new Error(`Unknown workflow "${id}". Known workflows: ${known}.`);
+}
+
+export function validateWorkflowConfigs(configDir?: string): WorkflowDefinition[] {
+  return loadWorkflowDefinitions(configDir);
+}
+
+function readWorkflowConfigFile(filePath: string): WorkflowDefinition {
+  try {
+    const raw = readFileSync(filePath, "utf8");
+    return WorkflowConfigSchema.parse(JSON.parse(raw));
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new Error(`${filePath}: invalid JSON: ${error.message}`);
+    }
+
+    if (error instanceof ZodError) {
+      throw new Error(formatWorkflowConfigError(filePath, error));
+    }
+
+    throw error;
+  }
+}
+
+function formatWorkflowConfigError(filePath: string, error: ZodError): string {
+  const issues = error.issues
+    .map((issue) => {
+      const field = issue.path.length > 0 ? issue.path.join(".") : "(root)";
+      return `- ${filePath}: ${field}: ${issue.message}`;
+    })
+    .join("\n");
+
+  return `Workflow config validation failed:\n${issues}`;
 }

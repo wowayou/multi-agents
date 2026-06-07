@@ -8,14 +8,28 @@ import { executeWorkflow } from "./runs/execute.js";
 import {
   createEvaluationRecord,
   readTraceSummary,
-  saveEvaluationRecord
+  saveEvaluationRecord,
+  summarizeEvaluations,
+  type EvaluationSummary,
+  type EvaluationTextFrequency
 } from "./runs/evaluation.js";
 import { readInputDocument, saveRunArtifacts } from "./tools/files.js";
-import { listWorkflows, resolveWorkflow } from "./workflows/registry.js";
+import {
+  listWorkflows,
+  resolveWorkflow,
+  validateWorkflowConfigs
+} from "./workflows/registry.js";
 import type { Adoption } from "./schemas/evaluation.js";
 
 interface ParsedArgs {
-  command: "workflow" | "list" | "templates" | "evaluate" | "help";
+  command:
+    | "workflow"
+    | "list"
+    | "templates"
+    | "evaluate"
+    | "review"
+    | "config-check"
+    | "help";
   workflowId?: string;
   inputPath?: string;
   tracePath?: string;
@@ -51,6 +65,13 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (args.command === "config-check") {
+    const workflows = validateWorkflowConfigs();
+    console.log(`Workflow configs: ${workflows.length} valid`);
+    console.log(`IDs: ${workflows.map((workflow) => workflow.id).join(", ")}`);
+    return;
+  }
+
   if (args.command === "evaluate") {
     if (!args.tracePath) {
       throw new Error(
@@ -77,6 +98,14 @@ async function main(): Promise<void> {
     if (record.timeSavedMinutes !== undefined) {
       console.log(`Time saved: ${record.timeSavedMinutes} minutes`);
     }
+    return;
+  }
+
+  if (args.command === "review") {
+    const summary = await summarizeEvaluations(
+      args.outputDir ?? process.env.AGENT_WORKFLOWS_OUT_DIR ?? "runs"
+    );
+    console.log(formatEvaluationReview(summary));
     return;
   }
 
@@ -133,8 +162,16 @@ function parseArgs(rawArgs: string[]): ParsedArgs {
     return { command: "templates" };
   }
 
+  if (args[0] === "config-check" || args[0] === "config:check") {
+    return { command: "config-check" };
+  }
+
   if (args[0] === "evaluate") {
     return parseEvaluateArgs(args.slice(1));
+  }
+
+  if (args[0] === "review") {
+    return parseReviewArgs(args.slice(1));
   }
 
   const positionals: string[] = [];
@@ -174,6 +211,28 @@ function parseArgs(rawArgs: string[]): ParsedArgs {
 
   parsed.workflowId = positionals[0];
   parsed.inputPath = positionals[1];
+  return parsed;
+}
+
+function parseReviewArgs(args: string[]): ParsedArgs {
+  const parsed: ParsedArgs = { command: "review" };
+
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+
+    if (arg === "--") {
+      continue;
+    }
+
+    if (arg === "--out") {
+      parsed.outputDir = requireValue(args, index, "--out");
+      index += 1;
+      continue;
+    }
+
+    throw new Error(`Unknown review option: ${arg}`);
+  }
+
   return parsed;
 }
 
@@ -293,12 +352,68 @@ function printHelp(): void {
   npm run list
   npm run templates
   npm run evaluate -- <trace-file> [--before-min 90] [--after-min 30] [--adopted yes|partial|no|unknown]
+  npm run review -- [--out runs]
+  npm run config:check
 
 Workflows:
 ${listWorkflows()
   .map((workflow) => `  ${workflow.id} - ${workflow.description}`)
   .join("\n")}
 `);
+}
+
+function formatEvaluationReview(summary: EvaluationSummary): string {
+  if (summary.totalEvaluations === 0) {
+    return [
+      `No evaluations found in ${summary.indexPath}.`,
+      "Run npm run evaluate -- <trace-file> after workflow runs to record adoption, time saved, errors, and rework."
+    ].join("\n");
+  }
+
+  return [
+    "Evaluation Review",
+    `Index: ${summary.indexPath}`,
+    `Evaluations: ${summary.totalEvaluations}`,
+    `Workflows: ${formatWorkflowRuns(summary.workflowRuns)}`,
+    `Adoption: yes ${summary.adoption.yes}, partial ${summary.adoption.partial}, no ${summary.adoption.no}, unknown ${summary.adoption.unknown}`,
+    `Time saved: total ${formatMinutes(summary.totalTimeSavedMinutes)}, average ${formatAverageTimeSaved(summary)}`,
+    "Common errors:",
+    formatTextFrequency(summary.errors),
+    "Common rework:",
+    formatTextFrequency(summary.rework)
+  ].join("\n");
+}
+
+function formatWorkflowRuns(workflowRuns: Record<string, number>): string {
+  return Object.entries(workflowRuns)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([workflow, count]) => `${workflow} ${count}`)
+    .join(", ");
+}
+
+function formatAverageTimeSaved(summary: EvaluationSummary): string {
+  if (summary.averageTimeSavedMinutes === undefined) {
+    return "unknown";
+  }
+
+  const suffix = summary.timeSavedSampleCount === 1 ? "" : "s";
+  return `${formatMinutes(summary.averageTimeSavedMinutes)} across ${summary.timeSavedSampleCount} measured evaluation${suffix}`;
+}
+
+function formatMinutes(value: number): string {
+  const rounded = Number.isInteger(value) ? value.toString() : value.toFixed(1);
+  return `${rounded} minutes`;
+}
+
+function formatTextFrequency(items: EvaluationTextFrequency[]): string {
+  if (items.length === 0) {
+    return "  none recorded";
+  }
+
+  return items
+    .slice(0, 5)
+    .map((item) => `  - ${item.text} (${item.count})`)
+    .join("\n");
 }
 
 function printTemplates(): void {
