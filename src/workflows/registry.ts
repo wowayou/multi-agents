@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { ZodError } from "zod";
 import { WorkflowConfigSchema } from "./config-schema.js";
@@ -69,7 +70,15 @@ export function validateWorkflowConfigs(configDir?: string): WorkflowDefinition[
 function readWorkflowConfigFile(filePath: string): WorkflowDefinition {
   try {
     const raw = readFileSync(filePath, "utf8");
-    return WorkflowConfigSchema.parse(JSON.parse(raw));
+    const configHash = createHash("sha256")
+      .update(raw)
+      .digest("hex")
+      .slice(0, 12);
+    const workflow = WorkflowConfigSchema.parse(JSON.parse(raw));
+    return {
+      ...workflow,
+      configHash
+    };
   } catch (error) {
     if (error instanceof SyntaxError) {
       throw new Error(`${filePath}: invalid JSON: ${error.message}`);

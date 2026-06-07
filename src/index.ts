@@ -1,4 +1,9 @@
 export { executeWorkflow } from "./runs/execute.js";
+export {
+  compareTraceFiles,
+  compareTraces,
+  formatTraceComparison
+} from "./runs/compare.js";
 export { listWorkflows, resolveWorkflow } from "./workflows/registry.js";
 export { LocalPreviewRunner, OpenAIAgentsRunner } from "./agents/runner.js";
 export type { RuntimeConfig } from "./config.js";

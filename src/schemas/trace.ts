@@ -12,6 +12,9 @@ export const TraceStepSchema = z.object({
 export const TraceSummarySchema = z.object({
   runId: z.string().min(1),
   workflow: z.string().min(1),
+  workflowVersion: z.string().min(1).optional(),
+  workflowConfigHash: z.string().min(1).optional(),
+  agentPromptVersion: z.string().min(1).optional(),
   model: z.string().min(1),
   mock: z.boolean(),
   inputPath: z.string().min(1),

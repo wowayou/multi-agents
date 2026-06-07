@@ -70,7 +70,13 @@ Review evaluations weekly:
 npm run review -- --out runs
 ```
 
-If evaluations show recurring errors, fix prompts/templates before adding new workflows or integrations.
+If evaluations show recurring errors, fix prompts/templates before adding new workflows or integrations. When changing a workflow config or prompt, keep a base trace and compare it to a candidate run:
+
+```bash
+npm run compare -- runs/traces/<base-run-id>.json runs/traces/<candidate-run-id>.json
+```
+
+The comparison highlights duration, step labels, reviewer finding codes, workflow version, config hash, and prompt version differences for the two-week review.
 
 ## 7. Choose The Next Workflow
 

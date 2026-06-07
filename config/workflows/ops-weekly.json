@@ -1,5 +1,6 @@
 {
   "id": "ops-weekly",
+  "version": "1.0.0",
   "title": "Operations Weekly",
   "description": "Collect progress, summarize metrics, identify blockers, and produce a weekly operating report.",
   "inputHint": "A weekly notes file with progress, metrics, blockers, and decisions.",

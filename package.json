@@ -14,6 +14,7 @@
     "templates": "tsx src/cli.ts templates",
     "evaluate": "tsx src/cli.ts evaluate",
     "review": "tsx src/cli.ts review",
+    "compare": "tsx src/cli.ts compare",
     "config:check": "tsx src/cli.ts config-check",
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",

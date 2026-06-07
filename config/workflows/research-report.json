@@ -1,5 +1,6 @@
 {
   "id": "research-report",
+  "version": "1.0.0",
   "title": "Research Report",
   "description": "Parallel research, fact checking, contrarian review, and final report synthesis.",
   "inputHint": "A research brief or source note file.",

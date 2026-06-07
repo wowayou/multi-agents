@@ -1,3 +1,6 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { listWorkflows, resolveWorkflow } from "../src/workflows/registry.js";
 
@@ -16,6 +19,21 @@ describe("workflow registry", () => {
       "ops-weekly",
       "research-report"
     ]);
+  });
+
+  it("includes workflow version and raw config hash", () => {
+    const workflow = resolveWorkflow("ops-weekly");
+    const raw = readFileSync(
+      path.join(process.cwd(), "config", "workflows", "ops-weekly.json"),
+      "utf8"
+    );
+    const expectedHash = createHash("sha256")
+      .update(raw)
+      .digest("hex")
+      .slice(0, 12);
+
+    expect(workflow.version).toBe("1.0.0");
+    expect(workflow.configHash).toBe(expectedHash);
   });
 
   it("rejects unknown workflows", () => {

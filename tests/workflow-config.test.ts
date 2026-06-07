@@ -19,6 +19,7 @@ describe("WorkflowConfigSchema", () => {
   it("restricts task agents to known specialist keys", () => {
     const result = WorkflowConfigSchema.safeParse({
       id: "bad-workflow",
+      version: "1.0.0",
       title: "Bad Workflow",
       description: "Invalid test workflow.",
       inputHint: "Input.",
@@ -43,6 +44,7 @@ describe("WorkflowConfigSchema", () => {
   it("requires task agents to be listed in specialists", () => {
     const result = WorkflowConfigSchema.safeParse({
       id: "bad-workflow",
+      version: "1.0.0",
       title: "Bad Workflow",
       description: "Invalid test workflow.",
       inputHint: "Input.",

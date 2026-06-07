@@ -1,5 +1,6 @@
 {
   "id": "meeting-actions",
+  "version": "1.0.0",
   "title": "Meeting Actions",
   "description": "Convert meeting notes or transcripts into decisions, action items, priorities, and risk reminders.",
   "inputHint": "Meeting notes, transcript, or agenda with decisions and discussion.",

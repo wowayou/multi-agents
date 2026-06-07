@@ -1,5 +1,6 @@
 {
   "id": "content-ops",
+  "version": "1.0.0",
   "title": "Content Operations",
   "description": "Topic framing, research notes, draft outline, fact check, and review concerns for content work.",
   "inputHint": "A content brief, draft, or topic note.",

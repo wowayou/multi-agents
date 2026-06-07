@@ -20,6 +20,13 @@ export const WorkflowConfigSchema = z
         /^[a-z0-9][a-z0-9-]*$/,
         "Use lowercase letters, numbers, and hyphens."
       ),
+    version: z
+      .string()
+      .min(1)
+      .regex(
+        /^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/,
+        "Use semantic version format, for example 1.0.0."
+      ),
     title: z.string().min(1),
     description: z.string().min(1),
     inputHint: z.string().min(1),

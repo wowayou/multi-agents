@@ -45,6 +45,12 @@ npm run evaluate -- runs/traces/<run-id>.json --before-min 90 --after-min 35 --a
 npm run review -- --out runs
 ```
 
+Compare two runs when checking prompt or workflow config changes:
+
+```bash
+npm run compare -- runs/traces/<base-run-id>.json runs/traces/<candidate-run-id>.json
+```
+
 Evaluation records are written to:
 
 - `runs/evaluations/<run-id>.json`
@@ -59,6 +65,8 @@ npm run config:check
 ```
 
 Set `AGENT_WORKFLOWS_CONFIG_DIR` to point the CLI at another workflow config directory.
+
+Each workflow config includes a required semantic `version`. Run traces record the workflow version, a short hash of the raw config JSON, and the centralized agent prompt version so later reviews can explain why two runs differed.
 
 - `research-report`: parallel research notes, fact check, contrarian review, final synthesis.
 - `ops-weekly`: progress collection, metrics synthesis, blockers, weekly report.
@@ -86,7 +94,7 @@ npm run workflow:mock -- ops-weekly examples/inputs/weekly.md
 
 ## Two-Week Use Loop
 
-Use `ops-weekly` and `meeting-actions` first. After every real run, record time saved, errors, rework, and adoption with `npm run evaluate`. Review the aggregate with `npm run review -- --out runs` at least weekly. Stabilize only workflows that are used three or more times per week or clearly save recurring review time.
+Use `ops-weekly` and `meeting-actions` first. After every real run, record time saved, errors, rework, and adoption with `npm run evaluate`. Review the aggregate with `npm run review -- --out runs` at least weekly. When prompt or config changes are being tested, run the same input before and after the change and compare traces with `npm run compare -- <base-trace> <candidate-trace>`. Stabilize only workflows that are used three or more times per week or clearly save recurring review time.
 
 ## Expansion Ideas
 

@@ -13,6 +13,7 @@ import {
   type EvaluationSummary,
   type EvaluationTextFrequency
 } from "./runs/evaluation.js";
+import { compareTraceFiles, formatTraceComparison } from "./runs/compare.js";
 import { readInputDocument, saveRunArtifacts } from "./tools/files.js";
 import {
   listWorkflows,
@@ -28,11 +29,13 @@ interface ParsedArgs {
     | "templates"
     | "evaluate"
     | "review"
+    | "compare"
     | "config-check"
     | "help";
   workflowId?: string;
   inputPath?: string;
   tracePath?: string;
+  candidateTracePath?: string;
   mock?: boolean;
   outputDir?: string;
   model?: string;
@@ -109,6 +112,19 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (args.command === "compare") {
+    if (!args.tracePath || !args.candidateTracePath) {
+      throw new Error("Usage: npm run compare -- <base-trace> <candidate-trace>");
+    }
+
+    const comparison = await compareTraceFiles(
+      args.tracePath,
+      args.candidateTracePath
+    );
+    console.log(formatTraceComparison(comparison));
+    return;
+  }
+
   if (!args.workflowId || !args.inputPath) {
     throw new Error(
       "Usage: npm run workflow -- <workflow-id> <input-file> [--mock] [--out runs]"
@@ -174,6 +190,10 @@ function parseArgs(rawArgs: string[]): ParsedArgs {
     return parseReviewArgs(args.slice(1));
   }
 
+  if (args[0] === "compare") {
+    return parseCompareArgs(args.slice(1));
+  }
+
   const positionals: string[] = [];
   const parsed: ParsedArgs = { command: "workflow" };
 
@@ -211,6 +231,27 @@ function parseArgs(rawArgs: string[]): ParsedArgs {
 
   parsed.workflowId = positionals[0];
   parsed.inputPath = positionals[1];
+  return parsed;
+}
+
+function parseCompareArgs(args: string[]): ParsedArgs {
+  const positionals: string[] = [];
+  const parsed: ParsedArgs = { command: "compare" };
+
+  for (const arg of args) {
+    if (arg === "--") {
+      continue;
+    }
+
+    if (arg.startsWith("--")) {
+      throw new Error(`Unknown compare option: ${arg}`);
+    }
+
+    positionals.push(arg);
+  }
+
+  parsed.tracePath = positionals[0];
+  parsed.candidateTracePath = positionals[1];
   return parsed;
 }
 
@@ -353,6 +394,7 @@ function printHelp(): void {
   npm run templates
   npm run evaluate -- <trace-file> [--before-min 90] [--after-min 30] [--adopted yes|partial|no|unknown]
   npm run review -- [--out runs]
+  npm run compare -- <base-trace> <candidate-trace>
   npm run config:check
 
 Workflows:

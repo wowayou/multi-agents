@@ -12,6 +12,7 @@ export interface WorkflowTask {
 
 export interface WorkflowDefinition {
   id: WorkflowId;
+  version: string;
   title: string;
   description: string;
   inputHint: string;
@@ -20,4 +21,5 @@ export interface WorkflowDefinition {
   managerPrompt: string;
   requiredSections: string[];
   approvalPolicy: string[];
+  configHash?: string;
 }

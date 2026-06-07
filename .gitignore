@@ -4,6 +4,6 @@ coverage/
 .env
 .env.*
 !.env.example
-runs/
+/runs/
 *.log
 .DS_Store

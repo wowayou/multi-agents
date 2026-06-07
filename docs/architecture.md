@@ -31,6 +31,8 @@ Inputs are local files. Outputs are local Markdown and JSON files. No external s
 Each run records a compact trace summary:
 
 - run id and workflow id
+- workflow config version and short raw config hash
+- centralized agent prompt version
 - model and mock/real mode
 - input file path
 - specialist step timing and previews
@@ -38,6 +40,8 @@ Each run records a compact trace summary:
 - artifact paths
 
 Full provider-side tracing can be layered in later through the Agents SDK tracing features.
+
+`npm run compare -- <base-trace> <candidate-trace>` reads two trace summaries without writing new artifacts. It reports workflow, model, mode, input, duration, step label, reviewer finding code, workflow version, config hash, and prompt version differences. Different workflow ids are flagged but still compared so historical traces remain inspectable.
 
 ## Evaluation Model
 

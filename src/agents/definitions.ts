@@ -1,5 +1,7 @@
 import { Agent } from "@openai/agents";
 
+export const AGENT_PROMPT_VERSION = "2026-06-08";
+
 export const specialistAgentKeys = [
   "researcher",
   "factChecker",
